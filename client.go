@@ -68,18 +68,32 @@ func (c *Client) ImmediateReturn() {
 func (c *Client) NeverReturn() {
 	fmt.Printf("\nNever Return:\n")
 	url := fmt.Sprintf("http://%s:%d/never_return", ServerHost, ServerPort)
+	req, err := http.NewRequest("HEAD", url, nil)
+	if err != nil {
+		fmt.Printf("make request instance error: %v\n", err)
+	}
 	ch := make(chan AsyncResponse)
+	cancel := make(chan struct{})
+	req.Cancel = cancel
+	cancelFlag := false
 	fmt.Printf("Default Client:\n")
 	s := time.Now()
 	go func() {
-		r, err := c.defaultClient.Get(url)
+		r, err := c.defaultClient.Do(req)
 		ch <- AsyncResponse{r, err}
 	}()
 	select {
 	case <-time.After(15 * time.Second):
+		close(cancel)
+		cancelFlag = true
 		fmt.Printf("Not return, use %v\n", time.Now().Sub(s))
 	case ar := <-ch:
 		c.PrintResult(s, ar.resp, ar.err)
+	}
+
+	if cancelFlag {
+		a := <-ch
+		c.PrintResult(s, a.resp, a.err)
 	}
 
 	fmt.Printf("Custom Client:\n")
