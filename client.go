@@ -102,6 +102,21 @@ func (c *Client) NeverReturn() {
 	c.PrintResult(s, r, err)
 }
 
+func (c *Client) NeverReturn2() {
+	fmt.Printf("\nNever Return2:\n")
+	url := fmt.Sprintf("http://%s:%d/never_return", ServerHost, ServerPort)
+	fmt.Printf("Default Client:\n")
+	c.defaultClient.Timeout = 3 * time.Second
+	s := time.Now()
+	r, err := c.defaultClient.Get(url)
+	c.PrintResult(s, r, err)
+
+	fmt.Printf("Custom Client:\n")
+	s = time.Now()
+	r, err = c.customClient.Get(url)
+	c.PrintResult(s, r, err)
+}
+
 func (c *Client) FiveSecondsReturn() {
 	fmt.Printf("\n5 Seconds Return:\n")
 	url := fmt.Sprintf("http://%s:%d/5_seconds_return", ServerHost, ServerPort)
@@ -121,5 +136,6 @@ func main() {
 	c.ImmediateReturn()
 	c.FiveSecondsReturn()
 	c.NeverReturn()
+	c.NeverReturn2()
 	fmt.Printf("End\n")
 }

@@ -27,6 +27,10 @@ func NeverReturnHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		time.Sleep(1 * time.Second)
 		s += 1
+		if s == 20 {
+			fmt.Printf(">>>>>> Never return: stop at %d seconds\n", s)
+			break
+		}
 		fmt.Printf(">>>>>> Never return: sleep %d seconds\n", s)
 	}
 	w.Write([]byte("This is a never return test!"))
